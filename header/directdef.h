@@ -1,3 +1,5 @@
+#include <windows.h>
+
 #ifndef _DIRECTDEF_H_
 #define _DIRECTDEF_H_
 
@@ -9,21 +11,21 @@
 #define ESCAPE 27
 
 //size definitions
-#define NL_MAX 25 // max newlines
-#define LS_MAX 80 // Max leading space
+#define NL_MAX 20 // max newlines
+#define LS_MAX 50 // Max leading space
 
 //symbol definitions
 #define SNAKE_SYM "s"
 #define FOOD_SYM "f"
 
 //time definitions
-#define SLEEP_TIME 250 //ms
+#define SLEEP_TIME 100 //ms
 
 //struct definitions
 typedef struct {
 	char direction;
-	short int X, randX;
-	short int Y, randY;
+	short X, randX;
+	short Y, randY;
 	short length;
 } coordinates;
 
@@ -31,6 +33,6 @@ typedef struct {
 void go_to(int x, int y);
 void spawnFood(volatile coordinates* randcoord);
 void clearSnake(volatile coordinates* coords);
-void checkDir(char _case, volatile coordinates* coords, int* STOP);
+void checkDir(char _case, volatile coordinates* coords, char moveDir, int* STOP);
 
 #endif

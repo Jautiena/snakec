@@ -10,10 +10,12 @@
 // uhh i forgor what else i wanted to fix and add, but have fun
 // also figure out how to make snake longer (if too difficult, watch coding train video again)
 
+HANDLE pause;
+
 DWORD WINAPI move(LPVOID lpParam) {
 	volatile coordinates* multi_coords = (volatile coordinates*) lpParam;
 	while(1) {
-		// WaitForSingleObject(pause);
+		WaitForSingleObject(pause, INFINITE);
 		clearSnake(multi_coords);
 		checkDir(multi_coords->direction, multi_coords, NULL);
 		go_to(multi_coords->X, multi_coords->Y);
@@ -32,42 +34,41 @@ DWORD WINAPI move(LPVOID lpParam) {
 				Sleep(SLEEP_TIME*2);
 				break;
 		}
+		if((multi_coords->randX == multi_coords->X) && (multi_coords->randY == multi_coords->Y)) {
+		multi_coords->length++;
+		spawnFood(multi_coords);
+	}
 	}
 	return 0;
 }
 
 int main() {
-
-COORD* randcoord = (COORD*) malloc(sizeof(COORD));
 volatile coordinates* multi_coords = (coordinates*) malloc(sizeof(coordinates));
 multi_coords->X = LS_MAX/2;
 multi_coords->Y = 2;
 multi_coords->length = 1;
 multi_coords->direction = -1;
 int stop = 0;
+pause = CreateEvent(NULL, TRUE, FALSE, NULL);
 
 system("cls");
 go_to(multi_coords->X, multi_coords->Y); // set cursor to coordinates
 
-spawnFood(randcoord); // spawn food at random coordinates (TODO: GET BETTER RANDOM COORDINATES)
+spawnFood(multi_coords); // spawn food at random coordinates (TODO: GET BETTER RANDOM COORDINATES)
 HANDLE thread1 = CreateThread(NULL, 0, move, (coordinates*) multi_coords, 0, NULL);
 
 while(1) {
 	go_to(multi_coords->X, multi_coords->Y);
 	printf(SNAKE_SYM);
 	checkDir(getch(), multi_coords, &stop);
+	SetEvent(pause);
 	if(stop) {
 		system("cls");
-		free(randcoord);
 		free((coordinates *) multi_coords); // have to do (coordinates *) to avoid volatile warning
 		CloseHandle(thread1);
 		return 0;
 	}
 	
-	if((randcoord->X == multi_coords->X) && (randcoord->Y == multi_coords->Y)) {
-		multi_coords->length++;
-		spawnFood(randcoord);
-	}
 }
 
 }

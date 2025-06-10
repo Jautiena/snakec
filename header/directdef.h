@@ -22,14 +22,14 @@
 //struct definitions
 typedef struct {
 	char direction;
-	short int X;
-	short int Y;
+	short int X, randX;
+	short int Y, randY;
 	short length;
 } coordinates;
 
 //function definitions
 void go_to(int x, int y);
-void spawnFood(COORD* randcoord);
+void spawnFood(volatile coordinates* randcoord);
 void clearSnake(volatile coordinates* coords);
 void checkDir(char _case, volatile coordinates* coords, int* STOP);
 

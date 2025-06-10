@@ -9,11 +9,11 @@ void go_to(int x, int y) {
 	cords.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cords);
 }
-void spawnFood(COORD* randcoord) {
+void spawnFood(volatile coordinates* randcoord) {
 	srand(time(NULL));
-	randcoord->X = rand() % (LS_MAX+1);
-	randcoord->Y = rand() % (NL_MAX+1);
-	go_to(randcoord->X, randcoord->Y);
+	randcoord->randX = rand() % (LS_MAX+1);
+	randcoord->randY = rand() % (NL_MAX+1);
+	go_to(randcoord->randX, randcoord->randY);
 	printf(FOOD_SYM);
 }
 void clearSnake(volatile coordinates* coords) {

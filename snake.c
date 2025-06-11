@@ -5,10 +5,9 @@
 #include "./header/directdef.h"
 
 // --- TODO ---
-// SNAKE DOUBLE JUMPS, LEAVING A CORPSE IN THE PLACE IT WOULD BE
-// I WANT TO MAKE IT DOUBLE JUMP IN THE X-AXIS INSTEAD OF LONGER SLEEP IN THE Y-AXIS (MAYBE)
-// uhh i forgor what else i wanted to fix and add, but have fun
-// also figure out how to make snake longer (if too difficult, watch coding train video again)
+// ADD BORDER WALLS
+// ADD DEATH
+// ------------
 
 HANDLE pause;
 const int MAX_LENGTH = (NL_MAX*LS_MAX)-1;
@@ -25,15 +24,17 @@ DWORD WINAPI move(LPVOID lpParam) {
 	volatile coordinates** multi_coords = (volatile coordinates**) lpParam;
 	WaitForSingleObject(pause, INFINITE);
 	CloseHandle(pause);
-	short Length = 0;
+	volatile short* Length = &multi_coords[MAX_LENGTH]->length;
+	multi_coords[MAX_LENGTH-1]->X = multi_coords[MAX_LENGTH]->X;
+	multi_coords[MAX_LENGTH-1]->Y = multi_coords[MAX_LENGTH]->Y;
 	while(1) {
-		clearSnake(multi_coords[MAX_LENGTH-Length]);
-		for(int i = MAX_LENGTH; i > MAX_LENGTH - Length; i--) {
-		multi_coords[i-1]->X = multi_coords[i]->X;
-		multi_coords[i-1]->Y = multi_coords[i]->Y;
+		for (int i = MAX_LENGTH - *Length; i < MAX_LENGTH; i++) {
+			multi_coords[i]->X = multi_coords[i + 1]->X;
+			multi_coords[i]->Y = multi_coords[i + 1]->Y;
 		}
+		clearSnake(multi_coords[MAX_LENGTH-*Length]);
 		checkDir(multi_coords[MAX_LENGTH]->direction, multi_coords[MAX_LENGTH], 1, NULL);
-		for(int i = MAX_LENGTH-Length; i <= MAX_LENGTH; i++) {
+		for(int i = MAX_LENGTH; i > MAX_LENGTH-*Length; i--) {
 			go_to(multi_coords[i]->X, multi_coords[i]->Y);
 			printf(SNAKE_SYM);
 		}
@@ -52,7 +53,11 @@ DWORD WINAPI move(LPVOID lpParam) {
 				break;
 		}
 		if((multi_coords[MAX_LENGTH]->randX == multi_coords[MAX_LENGTH]->X) && (multi_coords[MAX_LENGTH]->randY == multi_coords[MAX_LENGTH]->Y)) { // check if coords match, eat food and spawn new
-			Length = multi_coords[MAX_LENGTH]->length++;
+			multi_coords[MAX_LENGTH]->length++;
+			for (int i = MAX_LENGTH - *Length; i < MAX_LENGTH; i++) {
+				multi_coords[i]->X = multi_coords[i + 1]->X;
+				multi_coords[i]->Y = multi_coords[i + 1]->Y;
+			}
 			spawnFood(multi_coords[MAX_LENGTH]);
 		}
 	}
@@ -70,7 +75,7 @@ if(multi_coords == NULL) {
 }
 multi_coords[MAX_LENGTH]->X = LS_MAX/2;
 multi_coords[MAX_LENGTH]->Y = 2;
-multi_coords[MAX_LENGTH]->length = 0;
+multi_coords[MAX_LENGTH]->length = 1;
 multi_coords[MAX_LENGTH]->direction = -1;
 int stop = 0;
 pause = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -91,8 +96,6 @@ checkDir(getch(), multi_coords[MAX_LENGTH], 0, &stop); // check first move
 SetEvent(pause); // signal pause over, so second thread can get moving
 
 while(1) {
-	go_to(multi_coords[MAX_LENGTH]->X, multi_coords[MAX_LENGTH]->Y);
-	printf(SNAKE_SYM);
 	checkDir(getch(), multi_coords[MAX_LENGTH], 0, &stop);
 	if(stop) {
 		system("cls");

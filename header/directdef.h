@@ -19,7 +19,7 @@
 #define FOOD_SYM "f"
 
 //time definitions
-#define SLEEP_TIME 100 //ms
+#define SLEEP_TIME 80 //ms
 
 //struct definitions
 typedef struct {
